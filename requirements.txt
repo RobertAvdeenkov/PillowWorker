@@ -13,4 +13,5 @@ pytest
 pytest-asyncio
 alembic
 minio
+httpx
 pillow
