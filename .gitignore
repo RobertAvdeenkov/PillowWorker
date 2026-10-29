@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.env
+.pytest_cache/
+.ruff_cache/
+alembic/
+
+# VSCode
+.vscode/
+
+# OS
+images.db
+image.png
+test_images.db
+.env

@@ -1,0 +1,124 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    command: sh -c "uvicorn main:app --host 0.0.0.0 --port 8000"
+    ports:
+      - '8000:8000'
+    depends_on:
+      - db
+      - minio
+      - redis
+      - rabbitmq
+    environment:
+      DATABASE_URL: postgresql+asyncpg://arv:a123@db:5432/db
+      REDIS_URL: redis://redis:6379
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+      SECRET: a1234
+      ALGORITHM: HS256
+      SECRET_KEY: minio123
+      ACCESS_KEY: minio
+      ENDPOINT: minio:9000
+  
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
+
+  db:
+    image: postgres:15
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: arv
+      POSTGRES_PASSWORD: a123
+      POSTGRES_DB: db
+
+  minio:
+    image: milvusdb/minio:RELEASE.2024-12-18T13-15-44Z
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+
+  rabbitmq:
+    image: rabbitmq:3.13
+    ports:
+      - '5672:5672'
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  worker:
+    build: .
+    command: uvicorn worker:app --host 0.0.0.0 --port 8080
+    depends_on:
+      db:
+        condition: service_started
+      app:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+asyncpg://arv:a123@db:5432/db
+      REDIS_URL: redis://redis:6379
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+      SECRET: a1234
+      ALGORITHM: HS256
+      SECRET_KEY: minio123
+      ACCESS_KEY: minio
+      ENDPOINT: minio:9000
+  
+  retry_worker:
+    build: .
+    command: uvicorn retry_worker:app --host 0.0.0.0 --port 7000
+    depends_on:
+      db:
+        condition: service_started
+      app:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+asyncpg://arv:a123@db:5432/db
+      REDIS_URL: redis://redis:6379
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+      SECRET: a1234
+      ALGORITHM: HS256
+      SECRET_KEY: minio123
+      ACCESS_KEY: minio
+      ENDPOINT: minio:9000
+
+  dlx_worker:
+    build: .
+    command: uvicorn DLX_worker:app --host 0.0.0.0 --port 6000
+    depends_on:
+      db:
+        condition: service_started
+      app:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+asyncpg://arv:a123@db:5432/db
+      REDIS_URL: redis://redis:6379
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+      SECRET: a1234
+      ALGORITHM: HS256
+      SECRET_KEY: minio123
+      ACCESS_KEY: minio
+      ENDPOINT: minio:9000
+
+volumes:
+  minio_data:
+  postgres_data:
+      

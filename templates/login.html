@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Регистрация</title>
+
+    </head>
+    <style>
+        @import url('templates/style.css');
+    </style>
+    <div class="frame">
+        <h1>Здравствуйте!</h1>
+        <div class="container">
+            <form action="/login" method="POST" id="loginForm">
+                <h2>Логин</h2>
+                <input name="name" placeholder="Имя" required>
+                <p></p>
+                <h2>Пароль</h2>
+                <input name="password" type="password" placeholder="Пароль" required>
+                <p></p>
+                <button type="submit">Войти</button>
+            </form>
+            <a href="/register">Нету аккаунта? Зарегистрируйся!</a>
+        </div>
+    </div>
+    <p></p>
+    <script>
+    </script>
+</html>

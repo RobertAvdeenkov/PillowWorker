@@ -1,0 +1,16 @@
+aiosqlite
+asyncpg
+psycopg
+sqlalchemy[asyncio]
+uvicorn[standard]
+python-jose[cryptography]
+redis
+aio_pika
+bcrypt
+fastapi
+python-multipart
+pytest
+pytest-asyncio
+alembic
+minio
+pillow
