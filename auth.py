@@ -6,19 +6,19 @@ from models import User
 import os
 from datetime import datetime
 
-SECRET=os.getenv('SECRET','a')
-ALGORITHM=os.getenv('ALGORITHM','HS256')
+SECRET=os.getenv('SECRET')
+ALGORITHM=os.getenv('ALGORITHM')
 
 def create_token(user:str, timedelta):
     payload={
         'sub':user,
         'exp':datetime.now()+timedelta
     }
-    return jwt.encode(payload,SECRET,ALGORITHM)
+    return jwt.encode(payload,SECRET,ALGORITHM) #type:ignore
 
 async def get_user(token:str):
     try:
-        name=jwt.decode(token,SECRET,algorithms=[ALGORITHM])['sub']
+        name=jwt.decode(token,SECRET,algorithms=[ALGORITHM])['sub'] #type:ignore
     except ExpiredSignatureError:
         raise HTTPException(401,'Токен протух!')
     except JWTError:
