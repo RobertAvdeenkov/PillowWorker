@@ -11,7 +11,12 @@ from fastapi import FastAPI
 from logger import logger
 from storage import s3,cfg
 from sqlalchemy import text
+from aiogram import Bot
+from aiogram.types import BufferedInputFile
 
+Token=os.getenv('TOKEN', None)
+if Token:
+    bot=Bot(token=Token)
 app=FastAPI()
 
 background_tasks = set()
@@ -40,6 +45,7 @@ async def main():
     async def callback(message:pika.IncomingMessage):
         async with message.process():
             body=json.loads(message.body.decode())
+            tg_id=body.get('tg_id')
             try:
                 response=s3.get_object(Bucket=cfg.bucket, Key=body['name'])
                 image_data=response['Body'].read()
@@ -62,6 +68,13 @@ async def main():
                     db.add(target)
                     await db.execute(text('UPDATE images SET status=\'done\' WHERE id=:image_id'), {'image_id':body['id']})
                     await db.commit()
+                    if Token and tg_id:
+                        photo_file = BufferedInputFile(
+                            image_bytes.getvalue(),  # или просто image_data, если это bytes
+                            filename="result.jpg"
+                        )
+                        # 2. Отправляем
+                        await bot.send_photo(tg_id, photo=photo_file)
             except Exception as e:
                 logger.error(f'ERROR: {e}')
                 await channel.default_exchange.publish(routing_key='retry', message=pika.Message(json.dumps(body).encode()))
