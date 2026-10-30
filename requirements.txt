@@ -17,3 +17,4 @@ httpx
 pillow
 upstash-blob
 boto3
+aiogram
