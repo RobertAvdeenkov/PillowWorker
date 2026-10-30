@@ -31,8 +31,8 @@ async def main():
                 await r.set(f'{body['id']}',1)
                 tries=1
             try:
-                response=s3.get_object(cfg.bucket, object_name=body['name'])
-                image_data=response.read()
+                response=s3.get_object(Bucket=cfg.bucket, Key=body['name'])
+                image_data=response['Body'].read()
                 response.close()
                 response.release_conn()
                 await r.delete(f'{body['id']}')

@@ -41,9 +41,9 @@ async def main():
         async with message.process():
             body=json.loads(message.body.decode())
             try:
-                response=s3.get_object(cfg.bucket, object_name=body['name'])
+                response=s3.get_object(Bucket=cfg.bucket, Key=body['name'])
                 try:
-                    image_data=response.read()
+                    image_data=response['Body'].read()
                 finally:
                     response.close()
                     response.release_conn()
@@ -57,7 +57,7 @@ async def main():
                 new_image.save(image_bytes, format='JPEG')
                 image_bytes.seek(0)
 
-                s3.put_object(cfg.bucket, new_filename, image_bytes, len(image_bytes.getvalue()), content_type='image/jpeg')
+                s3.put_object(Bucket=cfg.bucket, Key=new_filename, Body=image_bytes.getvalue(), ContentType='image/jpeg')
                 img.close()
 
                 async with SessionLocal() as db: #type:ignore

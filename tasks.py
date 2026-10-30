@@ -93,7 +93,7 @@ async def upload(file:UploadFile, db:AsyncSession=Depends(get_db), access_token=
     await db.commit()
     await db.refresh(target)
     name=f'{user.name}/{target.id}.jpg'
-    s3.put_object(cfg.bucket,name, io.BytesIO(content), len(content), content_type=file.content_type) #type:ignore
+    s3.put_object(Bucket=cfg.bucket,Key=name, Body=io.BytesIO(content), content_type='image/jpeg')
     await channel.default_exchange.publish(routing_key='images_queue', message=pika.Message(json.dumps({'id':target.id, 'filter':filter, 'name':name, 'username':user.name, 'user_id':user.id, 'filename':file.filename}).encode()))
     await r.delete(f'{user.name}:images')
 
@@ -163,7 +163,7 @@ async def get_image(name:str, access_token=Cookie(), db:AsyncSession=Depends(get
     if target.user_id!=user.id: raise HTTPException(404,'Такого изображения нет!')
     data=await r.get(f'image:{name}')
     if data: return Response(data, media_type='image/jpeg')
-    image=s3.get_object(cfg.bucket,name)
+    image=s3.get_object(Bucket=cfg.bucket,Key=name)
     image_data=image.read()
     await r.set(f'image:{name}', image_data)
     return Response(image_data, media_type='image/jpeg')
