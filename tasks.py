@@ -15,6 +15,7 @@ from datetime import timedelta
 import os
 from storage import s3,cfg
 import io
+import base64
 
 router=APIRouter()
 
@@ -161,9 +162,12 @@ async def get_image(name:str, access_token=Cookie(), db:AsyncSession=Depends(get
     if not result: raise HTTPException(404,'Такого изображения нет!')
     target=result[0]
     if target.user_id!=user.id: raise HTTPException(404,'Такого изображения нет!')
+
     data=await r.get(f'image:{name}')
-    if data: return Response(data, media_type='image/jpeg')
+    if data: 
+        return Response(base64.b64decode(data), media_type='image/jpeg')
+
     image=s3.get_object(Bucket=cfg.bucket,Key=name)
     image_data=image['Body'].read()
-    await r.set(f'image:{name}', image_data)
+    await r.set(f'image:{name}', base64.b64encode(image_data).decode())
     return Response(image_data, media_type='image/jpeg')
