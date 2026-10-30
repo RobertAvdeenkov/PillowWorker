@@ -164,6 +164,6 @@ async def get_image(name:str, access_token=Cookie(), db:AsyncSession=Depends(get
     data=await r.get(f'image:{name}')
     if data: return Response(data, media_type='image/jpeg')
     image=s3.get_object(Bucket=cfg.bucket,Key=name)
-    image_data=image.read()
+    image_data=image['Body'].read()
     await r.set(f'image:{name}', image_data)
     return Response(image_data, media_type='image/jpeg')
