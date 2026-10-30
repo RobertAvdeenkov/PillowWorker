@@ -13,7 +13,7 @@ from sqlalchemy import select
 from models import User,Image,ReferenceImage
 from datetime import timedelta
 import os
-from storage import client,BUCKET
+from storage import s3,cfg
 import io
 
 router=APIRouter()
@@ -163,7 +163,7 @@ async def get_image(name:str, access_token=Cookie(), db:AsyncSession=Depends(get
     if target.user_id!=user.id: raise HTTPException(404,'Такого изображения нет!')
     data=await r.get(f'image:{name}')
     if data: return Response(data, media_type='image/jpeg')
-    image=client.get_object(BUCKET,name)
+    image=s3.get_object(cfg.bucket,name)
     image_data=image.read()
     await r.set(f'image:{name}', image_data)
     return Response(image_data, media_type='image/jpeg')

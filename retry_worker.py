@@ -4,7 +4,7 @@ import asyncio
 from fastapi import FastAPI
 from logger import logger
 from tasks import r
-from storage import BUCKET,client
+from storage import cfg, s3
 import os
 
 app=FastAPI()
@@ -31,7 +31,7 @@ async def main():
                 await r.set(f'{body['id']}',1)
                 tries=1
             try:
-                response=client.get_object(BUCKET, object_name=body['name'])
+                response=s3.get_object(cfg.bucket, object_name=body['name'])
                 image_data=response.read()
                 response.close()
                 response.release_conn()

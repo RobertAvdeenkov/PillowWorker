@@ -2,7 +2,6 @@ import aio_pika as pika
 import json
 import asyncio
 import os
-from storage import BUCKET, client
 from PIL import Image,ImageFilter
 from models import ReferenceImage
 import io
@@ -10,6 +9,7 @@ import uuid
 from database import SessionLocal
 from fastapi import FastAPI
 from logger import logger
+from storage import s3,cfg
 from sqlalchemy import text
 
 app=FastAPI()
@@ -41,7 +41,7 @@ async def main():
         async with message.process():
             body=json.loads(message.body.decode())
             try:
-                response=client.get_object(BUCKET, object_name=body['name'])
+                response=s3.get_object(cfg.bucket, object_name=body['name'])
                 try:
                     image_data=response.read()
                 finally:
@@ -57,7 +57,7 @@ async def main():
                 new_image.save(image_bytes, format='JPEG')
                 image_bytes.seek(0)
 
-                client.put_object(BUCKET, new_filename, image_bytes, len(image_bytes.getvalue()), content_type='image/jpeg')
+                s3.put_object(cfg.bucket, new_filename, image_bytes, len(image_bytes.getvalue()), content_type='image/jpeg')
                 img.close()
 
                 async with SessionLocal() as db: #type:ignore

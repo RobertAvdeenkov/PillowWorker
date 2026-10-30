@@ -2,7 +2,6 @@ from fastapi.staticfiles import StaticFiles
 from database import engine
 from logger import logger
 from models import Base
-from storage import add_bucket
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from tasks import router
@@ -21,7 +20,6 @@ app.add_middleware(
 async def startup():
     async with engine.begin() as con:
         await con.run_sync(Base.metadata.create_all)
-    add_bucket()
     logger.info('Main app started')
 
 app.include_router(router)
