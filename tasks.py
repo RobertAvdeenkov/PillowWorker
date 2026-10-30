@@ -93,7 +93,7 @@ async def upload(file:UploadFile, db:AsyncSession=Depends(get_db), access_token=
     await db.commit()
     await db.refresh(target)
     name=f'{user.name}/{target.id}.jpg'
-    s3.put_object(Bucket=cfg.bucket,Key=name, Body=io.BytesIO(content), content_type='image/jpeg')
+    s3.put_object(Bucket=cfg.bucket,Key=name, Body=io.BytesIO(content), ContentType='image/jpeg')
     await channel.default_exchange.publish(routing_key='images_queue', message=pika.Message(json.dumps({'id':target.id, 'filter':filter, 'name':name, 'username':user.name, 'user_id':user.id, 'filename':file.filename}).encode()))
     await r.delete(f'{user.name}:images')
 
