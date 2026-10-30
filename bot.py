@@ -73,7 +73,7 @@ async def after_password(state:FSMContext, message:types.Message):
             if not(bcrypt.checkpw(message.text.encode(), user.password.encode())): #type:ignore
                 await message.answer('Неправильный логин или пароль!')
                 return
-            user.tg_id=message.from_user.id #type:ignore
+            user.tg_id=str(message.from_user.id) #type:ignore
             await state.update_data(username=login)
             await message.answer('Успешно!\nНажмите /start, чтобы продолжить')
     else:
