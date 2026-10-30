@@ -16,3 +16,4 @@ minio
 httpx
 pillow
 upstash-blob
+boto3
