@@ -42,11 +42,8 @@ async def main():
             body=json.loads(message.body.decode())
             try:
                 response=s3.get_object(Bucket=cfg.bucket, Key=body['name'])
-                try:
-                    image_data=response['Body'].read()
-                finally:
-                    response.close()
-                    response.release_conn()
+                image_data=response['Body'].read()
+
 
                 img=Image.open(io.BytesIO(image_data))
                 new_image=apply_filter(img, body['filter'])
