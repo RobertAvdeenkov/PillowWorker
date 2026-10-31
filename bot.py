@@ -113,7 +113,7 @@ async def apply_filter(message:types.Message,state:FSMContext):
         await db.refresh(target)
         name=f'{user.name}/{target.id}.jpg'
         s3.put_object(Bucket=cfg.bucket,Key=name, Body=io.BytesIO(image_bytes), ContentType='image/jpeg')
-        await channel.default_exchange.publish(routing_key='images_queue', message=pika.Message(json.dumps({'id':target.id, 'filter':message.caption or 'none', 'name':name, 'username':user.name, 'user_id':user.id, 'filename':file_in_memory.name, 'tg_id':message.from_user.id}).encode())) #type:ignore
+        await channel.default_exchange.publish(routing_key='images_queue', message=pika.Message(json.dumps({'id':target.id, 'filter':message.caption or 'none', 'name':name, 'username':user.name, 'user_id':user.id, 'tg_id':message.from_user.id}).encode())) #type:ignore
         await message.answer('Подождите, началась обработка...')
         return
     else:
