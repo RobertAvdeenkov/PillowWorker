@@ -39,7 +39,7 @@ bot=Bot(token=Token)
 dp=Dispatcher()
 
 @dp.message(Command('start'))
-async def start(state:FSMContext, message:types.Message):
+async def start(message:types.Message,state:FSMContext):
     data=await state.get_data()
     username=data.get('username')
     if username:
@@ -54,13 +54,13 @@ async def start(state:FSMContext, message:types.Message):
         await state.set_state(Form.waiting_for_login)
 
 @dp.message(Form.waiting_for_login)
-async def after_login(state:FSMContext, message:types.Message):
+async def after_login(message:types.Message,state:FSMContext):
     await state.update_data(login=message.text)
     await message.answer('Введите пароль:')
     await state.set_state(Form.waiting_for_password)
 
 @dp.message(Form.waiting_for_password)
-async def after_password(state:FSMContext, message:types.Message):
+async def after_password(message:types.Message,state:FSMContext):
     data=await state.get_data()
     login=data.get('login')
     if login:
@@ -80,13 +80,13 @@ async def after_password(state:FSMContext, message:types.Message):
         await message.answer('Нажмите /start, чтобы продолжить')
 
 @dp.message(F.data=='logout')
-async def logout(state:FSMContext, message:types.Message):
+async def logout(message:types.Message,state:FSMContext):
     await state.update_data(username=None)
     await message.answer('Вы вышли из аккаунта.\nНажмите /start, чтобы продолжить')
     return
 
 @dp.message(F.photo)
-async def apply_filter(state:FSMContext, message:types.Message):
+async def apply_filter(message:types.Message,state:FSMContext):
     global connection,channel
     data=await state.get_data()
     username=data.get('username')
