@@ -18,3 +18,4 @@ pillow
 upstash-blob
 boto3
 aiogram
+locust

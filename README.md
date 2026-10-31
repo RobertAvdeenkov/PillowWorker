@@ -15,6 +15,7 @@
 [![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![pytest](https://img.shields.io/badge/pytest-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white)](https://pytest.org/)
 [![bcrypt](https://img.shields.io/badge/bcrypt-003A70?style=for-the-badge&logo=letsencrypt&logoColor=white)](https://github.com/pyca/bcrypt)
+[![locust](https://img.shields.io/badge/locust-003A70?style=for-the-badge&logo=letsencrypt&logoColor=white)](https://github.com/pyca/bcrypt)
 </div>
 
 ---
@@ -33,5 +34,17 @@
 2. Перейдите в папку и откройте терминал
 3. Введите: docker-compose up --build
 
+## Результаты locust
+
+**Общая статистика(10 "пользователей")**
+| Запросов | Ошибок | Current RPS | Current Failures/s |
+|---------:|-------:|------------:|-------------------:|
+| 80       | 0      | 1.3         | 0                  |
+
+**Тайминги (мс)**
+
+| Median | 95%ile | 99%ile | Average | Min | Max   | Avg size (bytes) |
+|-------:|-------:|-------:|--------:|----:|------:|-----------------:|
+| 360    | 1000   | 1200   | 487     | 282 | 1212  | 989              |
 
 <div align="center">
