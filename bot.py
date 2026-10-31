@@ -76,8 +76,10 @@ async def after_password(message:types.Message,state:FSMContext):
             user.tg_id=str(message.from_user.id) #type:ignore
             await state.update_data(username=login)
             await message.answer('Успешно!\nНажмите /start, чтобы продолжить')
+            return
     else:
         await message.answer('Нажмите /start, чтобы продолжить')
+        return
 
 @dp.message(F.data=='logout')
 async def logout(message:types.Message,state:FSMContext):
@@ -108,6 +110,7 @@ async def apply_filter(message:types.Message,state:FSMContext):
         s3.put_object(Bucket=cfg.bucket,Key=name, Body=io.BytesIO(image_bytes), ContentType='image/jpeg')
         await channel.default_exchange.publish(routing_key='images_queue', message=pika.Message(json.dumps({'id':target.id, 'filter':message.caption or 'none', 'name':name, 'username':user.name, 'user_id':user.id, 'filename':file_in_memory.name, 'tg_id':message.from_user.id}).encode())) #type:ignore
         await message.answer('Подождите, началась обработка...')
+        return
 
 @app.on_event('startup')
 async def startup():
