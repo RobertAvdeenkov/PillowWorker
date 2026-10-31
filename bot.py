@@ -15,6 +15,7 @@ from storage import cfg, s3
 import aio_pika as pika
 import io
 import json
+import uuid
 
 connection=None
 channel=None
@@ -107,7 +108,7 @@ async def apply_filter(message:types.Message,state:FSMContext):
         photo = message.photo[-1] #type:ignore
         file_in_memory = await message.bot.download(photo) #type:ignore
         image_bytes = file_in_memory.read() #type:ignore
-        target=Image(filename=file_in_memory.name, user_id=user.id) #type:ignore
+        target=Image(filename=f'{user.name}/{uuid.uuid4()}', user_id=user.id) #type:ignore
         db.add(target)
         await db.commit()
         await db.refresh(target)
