@@ -123,3 +123,7 @@ async def shutdown():
     global connection
     if connection:
         await connection.close()
+
+@app.get('/')
+async def root():
+    return {'status':'ok'}
