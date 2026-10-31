@@ -20,6 +20,7 @@ services:
       SECRET_KEY: minio123
       ACCESS_KEY: minio
       ENDPOINT: minio:9000
+      UPSTASH_BLOB_TOKEN: 1234
   
   redis:
     image: redis:7-alpine

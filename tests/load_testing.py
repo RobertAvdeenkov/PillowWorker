@@ -4,7 +4,7 @@ import random
 
 class QuickstartUser(HttpUser):
     
-    wait_time = between(5, 9)
+    wait_time = between(1, 2)
 
     @task
     def reg(self):
