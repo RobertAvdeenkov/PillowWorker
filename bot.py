@@ -75,6 +75,7 @@ async def after_password(message:types.Message,state:FSMContext):
                 return
             user.tg_id=str(message.from_user.id) #type:ignore
             await state.update_data(username=login)
+            await state.set_state(None)
             await message.answer('Успешно!\nНажмите /start, чтобы продолжить')
             return
     else:
@@ -83,13 +84,17 @@ async def after_password(message:types.Message,state:FSMContext):
 
 @dp.message(F.data=='logout')
 async def logout(message:types.Message,state:FSMContext):
-    await state.update_data(username=None)
+    await state.clear()
     await message.answer('Вы вышли из аккаунта.\nНажмите /start, чтобы продолжить')
     return
 
 @dp.message(F.photo)
 async def apply_filter(message:types.Message,state:FSMContext):
     global connection,channel
+    current_state = await state.get_state()
+    if current_state is not None:
+        await message.answer("Сначала завершите вход или нажмите /start")
+        return
     data=await state.get_data()
     username=data.get('username')
     if username:
@@ -110,6 +115,9 @@ async def apply_filter(message:types.Message,state:FSMContext):
         s3.put_object(Bucket=cfg.bucket,Key=name, Body=io.BytesIO(image_bytes), ContentType='image/jpeg')
         await channel.default_exchange.publish(routing_key='images_queue', message=pika.Message(json.dumps({'id':target.id, 'filter':message.caption or 'none', 'name':name, 'username':user.name, 'user_id':user.id, 'filename':file_in_memory.name, 'tg_id':message.from_user.id}).encode())) #type:ignore
         await message.answer('Подождите, началась обработка...')
+        return
+    else:
+        await message.answer('Вы не вошли в аккаунт!')
         return
 
 @app.on_event('startup')
