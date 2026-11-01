@@ -93,3 +93,18 @@ async def test_load_refimages():
     await fetch('/reg', 'post', {'name':'test','password':'123'})
     response=await fetch('/refimages','get',cookies={'access_token':create_token('test',timedelta(hours=1))})
     assert response[0]==200 #type:ignore
+
+async def test_delete_original():
+    await fetch('/reg', 'post', {'name':'test','password':'123'})
+    with open('image.jpg', 'rb') as file:
+        content=file.read()
+    data=io.BytesIO(content)
+    await fetch('/upload', 'post', cookies={'access_token':create_token('test',timedelta(hours=1))}, file={'file':('image.jpg', data,'image/jpg')}, data={'filter':'grayscale'}, json=True)
+    response=await fetch('/images/1','delete',cookies={'access_token':create_token('test',timedelta(hours=1))})
+    assert response[0]==200 #type:ignore
+
+async def test_logout():
+    await fetch('/reg', 'post', {'name':'test','password':'123'})
+    await fetch('/login', 'post', {'name':'test','password':'123'})
+    response=await fetch('/logout','get')
+    assert response[0]==303 #type:ignore
