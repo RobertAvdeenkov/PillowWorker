@@ -12,6 +12,6 @@ alembic/
 
 # OS
 images.db
-image.png
+image.jpg
 test_images.db
 .env

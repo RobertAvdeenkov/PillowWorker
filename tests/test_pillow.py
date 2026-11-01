@@ -7,6 +7,9 @@ from sqlalchemy import create_engine,delete
 from main import app
 from database import get_db
 from sqlalchemy.orm import sessionmaker
+from auth import create_token
+from datetime import timedelta
+import io
 
 client=TestClient(app)
 
@@ -25,14 +28,14 @@ async def get_over_db():
 
 app.dependency_overrides[get_db]=get_over_db
 
-async def fetch(url,type, data=None, json=False, cookies=None):
+async def fetch(url,type, data=None, json=False, cookies=None,file=None):
     transport=httpx.ASGITransport(app)
     async with httpx.AsyncClient(transport=transport, base_url='http://127.0.0.1') as client:
         if type=='get':
             response=await client.get(url, cookies=cookies if cookies else {})
             return (response.status_code, response.json() if json else None)
         elif type=='post':
-            response=await client.post(url,data=data, cookies=cookies if cookies else {})
+            response=await client.post(url,data=data, cookies=cookies if cookies else {}, files=file if file else {})
             return (response.status_code, response.json() if json else None)
         elif type=='delete':
             response=await client.delete(url, cookies=cookies if cookies else {})
@@ -73,3 +76,20 @@ async def test_wrong_login():
     response=await fetch('/reg', 'post', {'name':'test','password':'1234'})
     assert response[0]==409 #type:ignore
 
+async def test_upload():
+    await fetch('/reg', 'post', {'name':'test','password':'123'})
+    with open('image.jpg', 'rb') as file:
+        content=file.read()
+    data=io.BytesIO(content)
+    response=await fetch('/upload', 'post', cookies={'access_token':create_token('test',timedelta(hours=1))}, file={'file':('image.jpg', data,'image/jpg')}, data={'filter':'grayscale'}, json=True)
+    assert response[0]==200 #type:ignore
+
+async def test_load_images():
+    await fetch('/reg', 'post', {'name':'test','password':'123'})
+    response=await fetch('/images','get',cookies={'access_token':create_token('test',timedelta(hours=1))})
+    assert response[0]==200 #type:ignore
+
+async def test_load_refimages():
+    await fetch('/reg', 'post', {'name':'test','password':'123'})
+    response=await fetch('/refimages','get',cookies={'access_token':create_token('test',timedelta(hours=1))})
+    assert response[0]==200 #type:ignore
