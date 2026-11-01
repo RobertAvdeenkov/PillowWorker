@@ -10,5 +10,7 @@ class QuickstartUser(HttpUser):
     def reg(self):
         name=str(uuid.uuid4())
         self.client.post("reg", data={'name':name, 'password':'aaa'})
+        self.client.post("login", data={'name':name, 'password':'aaa'})
+        self.client.get('logout')
 
 
