@@ -84,7 +84,7 @@
                                 <div class="status">Загружено: ${image.created_at}</div>
                             </div>
                             <div class="actions">
-                                <button onclick="deleteImage(${image.id})">Удалить</button>
+                                <button onclick="deleteImage(${image.id}, ${true})">Удалить</button>
                             </div>
                         </div>
                     `;
@@ -112,7 +112,7 @@
                                 <div class="status ${statusClass}">Размер: ${image.size}</div>
                             </div>
                             <div class="actions">
-                                <button onclick="deleteReference(${image.id})">Удалить</button>
+                                <button onclick="deleteImage(${image.id}, ${false})">Удалить</button>
                             </div>
                         </div>
                     `;
@@ -120,16 +120,14 @@
             }
 
 
-            async function deleteImage(id) {
+            async function deleteImage(id, original) {
                 if (!confirm('Удалить изображение?')) return;
-                await fetchWithAuth(`/images/${id}`, { method: 'DELETE' });
-                loadImages();
-                loadImagesRef();
-            }
-
-            async function deleteReference(id) {
-                if (!confirm('Удалить изображение?')) return;
-                await fetchWithAuth(`/reference/${id}`, { method: 'DELETE' });
+                if (original){
+                    await fetchWithAuth(`/images/${id}`, { method: 'DELETE' });
+                } else {
+                    await fetchWithAuth(`/reference/${id}`, { method: 'DELETE' });
+                }
+                
                 loadImages();
                 loadImagesRef();
             }
@@ -137,7 +135,6 @@
             // Загрузка при старте
             loadImages();
             loadImagesRef();
-            setInterval(loadImagesRef,60000)
         </script>
     </body>
 </html>

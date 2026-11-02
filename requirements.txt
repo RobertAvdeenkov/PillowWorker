@@ -19,3 +19,4 @@ upstash-blob
 boto3
 aiogram
 locust
+prometheus-client
