@@ -1,6 +1,6 @@
 from fastapi.routing import APIRouter
 from database import get_db
-from fastapi import Depends,Cookie,Form,HTTPException, UploadFile
+from fastapi import Depends,Cookie,Form,HTTPException, UploadFile,Request
 from logger import logger
 from auth import create_token,get_user
 import redis.asyncio as redis
@@ -86,6 +86,7 @@ async def logout():
 @router.post('/upload')
 async def upload(file:UploadFile, db:AsyncSession=Depends(get_db), access_token=Cookie(), channel=Depends(get_channel), filter=Form()):
     user=await get_user(access_token)
+    if file.size>10_485_760: raise HTTPException(400,'Размер файла не должен превышать 10 мегабайт!') #type:ignore
     if not(file.filename.endswith('.jpg') or file.filename.endswith('.jpeg')): #type:ignore
         raise HTTPException(400,'Недопустимый формат изображения!')
     content=await file.read()
