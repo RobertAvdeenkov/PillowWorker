@@ -43,15 +43,16 @@ async def metrics(request:Request, call_next):
 
 @app.middleware('http')
 async def rate_limit(request:Request, call_next):
-    client=request.scope.get('client')
-    f=request.headers.get('X-Forwarded-For')
-    ip=f.split(',')[0].strip() if f else (client[0] if client else 'unknown')
-    data=await r.get(f'{ip}:{request.url.path}')
-    if data:
-        data=int(data)+1
-    else: data=1
-    if data>3: return JSONResponse({'message':'Слишком много запросов!'}, status_code=429)
-    else: await r.setex(f'{ip}:{request.url.path}',60,str(data))
+    if request.method in ('POST','DELETE'):
+        client=request.scope.get('client')
+        f=request.headers.get('X-Forwarded-For')
+        ip=f.split(',')[0].strip() if f else (client[0] if client else 'unknown')
+        data=await r.get(f'{ip}:{request.url.path}')
+        if data:
+            data=int(data)+1
+        else: data=1
+        if data>3: return JSONResponse({'message':'Слишком много запросов!'}, status_code=429)
+        else: await r.setex(f'{ip}:{request.url.path}',60,str(data))
     response=await call_next(request)
     return response
 
